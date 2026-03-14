@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Doable</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #c9b8a8;
+    --card-bg: #e8e0d5;
+    --card-border: #d4c9bc;
+    --text: #2a2118;
+    --text-muted: #6b5c4e;
+    --accent: #f0b429;
+    --green: #6a9e6e;
+    --btn-bg: #ddd4c8;
+    --btn-shadow: #b8a898;
+    --check-done: #6a9e6e;
+    --xp-bar: #f0b429;
+    --danger: #c0614a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── PHONE SHELL ── */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg);
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 52px 28px 32px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-40px);
+  }
+  .screen.slide-in {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+
+  /* ── LOGO ── */
+  .logo {
+    font-family: 'Special Elite', serif;
+    font-size: 36px;
+    letter-spacing: 1px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .logo span { font-family: 'Nunito', sans-serif; font-weight: 800; }
+
+  /* ══════════════════════════════
+     SPLASH SCREEN
+  ══════════════════════════════ */
+  #splash {
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+  }
+  .splash-tagline {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 32px;
+    line-height: 1.25;
+  }
+  .splash-start-btn {
+    margin-top: 40px;
+    width: 180px;
+    height: 56px;
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 999px;
+    font-size: 26px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--btn-shadow), 0 8px 20px rgba(0,0,0,0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .splash-start-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 var(--btn-shadow);
+  }
+
+  /* Robot SVG container */
+  .robot-wrap {
+    position: absolute;
+    bottom: 20px;
+    left: 28px;
+    width: 200px;
+    height: 200px;
+  }
+  .robot-svg {
+    width: 100%;
+    height: 100%;
+    animation: robotBob 3s ease-in-out infinite;
+  }
+  @keyframes robotBob {
+    0%, 100% { transform: translateY(0px) rotate(-1deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  /* ══════════════════════════════
+     MAIN TASK SCREEN
+  ══════════════════════════════ */
+  #main {
+    padding: 52px 0 0;
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    margin-bottom: 16px;
+  }
+
+  /* XP / Level bar */
+  .xp-section {
+    padding: 0 28px;
+    margin-bottom: 20px;
+  }
+  .xp-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .level-badge {
+    background: var(--text);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .xp-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .xp-bar-track {
+    height: 10px;
+    background: var(--card-bg);
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--xp-bar), #f5c842);
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* Streak */
+  .streak-row {
+    display: flex;
+    gap: 8px;
+    padding: 0 28px;
+    margin-bottom: 20px;
+  }
+  .streak-chip {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+
+  /* Task Card */
+  .task-card {
+    margin: 0 20px;
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 0 0 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .task-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px 12px;
+    border-bottom: 1.5px solid var(--card-border);
+  }
+  .task-card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .task-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border) transparent;
+  }
+
+  /* Task Item */
+  .task-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    gap: 10px;
+    transition: background 0.15s;
+    cursor: pointer;
+    user-select: none;
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item:active { background: rgba(0,0,0,0.03); }
+
+  .task-check {
+    width: 22px; height: 22px;
+    border: 2px dashed var(--text-muted);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: transparent;
+  }
+  .task-item.done .task-check {
+    border-color: var(--check-done);
+    background: var(--check-done);
+    color: #fff;
+    border-style: solid;
+  }
+  .task-label {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    transition: opacity 0.2s;
+  }
+  .task-item.done .task-label {
+    opacity: 0.45;
+    text-decoration: line-through;
+  }
+  .task-xp {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--accent);
+    background: rgba(240,180,41,0.15);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+  .task-delete {
+    width: 20px; height: 20px;
+    border: none; background: none;
+    cursor: pointer;
+    opacity: 0;
+    font-size: 15px;
+    color: var(--danger);
+    transition: opacity 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .task-item:hover .task-delete { opacity: 0.6; }
+
+  /* Group */
+  .task-group-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    gap: 8px;
+    cursor: pointer;
+    background: rgba(0,0,0,0.02);
+  }
+  .group-arrow {
+    font-size: 12px; color: var(--text-muted);
+    transition: transform 0.2s;
+    font-weight: 800;
+  }
+  .group-arrow.open { transform: rotate(90deg); }
+  .group-label {
+    font-size: 14px; font-weight: 800; color: var(--text-muted);
+    flex: 1;
+  }
+  .group-count {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    background: var(--card-border);
+    padding: 2px 7px; border-radius: 999px;
+  }
+  .group-body { overflow: hidden; }
+  .group-body.closed { display: none; }
+  .group-body .task-item { padding-left: 36px; }
+
+  /* Add task bar */
+  .add-task-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 20px 6px;
+    border-top: 1.5px solid var(--card-border);
+  }
+  .add-task-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+  }
+  .add-task-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+  .add-task-btn {
+    width: 32px; height: 32px;
+    background: var(--text);
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.1s, background 0.1s;
+    flex-shrink: 0;
+  }
+  .add-task-btn:active { transform: scale(0.88); }
+
+  /* Mini robot bottom-right */
+  .mini-robot {
+    position: absolute;
+    bottom: 18px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    animation: robotBob 2.5s ease-in-out infinite;
+    cursor: pointer;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--text);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+    padding: 8px 18px;
+    border-radius: 999px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 99;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Complete popup */
+  .popup-overlay {
+    position: absolute; inset: 0;
+    background: rgba(42,33,24,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    border-radius: 44px;
+  }
+  .popup-overlay.show { opacity: 1; pointer-events: all; }
+  .popup-card {
+    background: var(--card-bg);
+    border-radius: 28px;
+    padding: 32px 28px;
+    width: 300px;
+    text-align: center;
+    transform: scale(0.85);
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .popup-overlay.show .popup-card { transform: scale(1); }
+  .popup-emoji { font-size: 52px; margin-bottom: 12px; }
+  .popup-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .popup-sub { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; }
+  .popup-xp { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+  .popup-btn {
+    background: var(--text); color: #fff;
+    border: none; border-radius: 999px;
+    padding: 12px 32px; font-size: 15px; font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer; transition: transform 0.1s;
+  }
+  .popup-btn:active { transform: scale(0.95); }
+
+  @media (max-height: 860px) {
+    .phone { height: 100vh; border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- ══ SPLASH SCREEN ══ -->
+  <div class="screen" id="splash">
+    <div class="logo">𝔻o<span>able</span></div>
+    <div class="splash-tagline">Organize, Do,<br>Achieve</div>
+    <button class="splash-start-btn" onclick="goToMain()">→</button>
+
+    <div class="robot-wrap">
+      <!-- Grumpy robot SVG (inline, matching the mascot style) -->
+      <svg class="robot-svg" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shadow -->
+        <ellipse cx="100" cy="210" rx="55" ry="10" fill="rgba(0,0,0,0.12)"/>
+        <!-- Body -->
+        <rect x="52" y="115" width="96" height="78" rx="18" fill="#e8dfc8"/>
+        <rect x="60" y="123" width="80" height="62" rx="12" fill="#ddd5bc"/>
+        <!-- Star on chest -->
+        <text x="88" y="165" font-size="22" fill="#f0b429">★</text>
+        <!-- Arms -->
+        <rect x="22" y="120" width="30" height="48" rx="12" fill="#7fb87c"/>
+        <rect x="148" y="120" width="30" height="48" rx="12" fill="#7fb87c"/>
+        <!-- Fists -->
+        <rect x="24" y="162" width="26" height="20" rx="10" fill="#e8dfc8"/>
+        <rect x="150" y="162" width="26" height="20" rx="10" fill="#e8dfc8"/>
+        <!-- Neck -->
+        <rect x="85" y="100" width="30" height="20" rx="6" fill="#c8bfa8"/>
+        <!-- Head -->
+        <rect x="42" y="46" width="116" height="72" rx="20" fill="#e8dfc8"/>
+        <!-- Face screen -->
+        <rect x="54" y="58" width="92" height="48" rx="10" fill="#2a3a2a"/>
+        <!-- Grumpy eyes -->
+        <rect x="65" y="68" width="26" height="14" rx="4" fill="#1a2a2a"/>
+        <rect x="109" y="68" width="26" height="14" rx="4" fill="#1a2a2a"/>
+        <!-- Eye gleam -->
+        <circle cx="75" cy="73" r="3" fill="#00c8c8" opacity="0.8"/>
+        <circle cx="119" cy="73" r="3" fill="#00c8c8" opacity="0.8"/>
+        <!-- Frown -->
+        <path d="M74 94 Q100 87 126 94" stroke="#4a6a4a" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <!-- Ear bolts -->
+        <circle cx="42" cy="80" r="8" fill="#7fb87c"/>
+        <circle cx="158" cy="80" r="8" fill="#7fb87c"/>
+        <!-- Cap brim -->
+        <rect x="30" y="52" width="140" height="12" rx="6" fill="#5a4a36"/>
+        <!-- Cap top -->
+        <rect x="48" y="18" width="104" height="38" rx="14" fill="#5a4a36"/>
+        <!-- Cap star -->
+        <text x="86" y="45" font-size="18" fill="#f0b429">★</text>
+        <!-- Legs -->
+        <rect x="67" y="186" width="26" height="26" rx="10" fill="#7fb87c"/>
+        <rect x="107" y="186" width="26" height="26" rx="10" fill="#7fb87c"/>
+        <!-- Feet -->
+        <rect x="60" y="206" width="34" height="14" rx="7" fill="#5a4a36"/>
+        <rect x="106" y="206" width="34" height="14" rx="7" fill="#5a4a36"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══ MAIN SCREEN ══ -->
+  <div class="screen hidden slide-in" id="main">
+    <div class="main-header">
+      <div class="logo" style="font-size:28px">𝔻o<span>able</span></div>
+    </div>
+
+    <!-- XP Bar -->
+    <div class="xp-section">
+      <div class="xp-row">
+        <div class="level-badge" id="levelBadge">LVL 1</div>
+        <div class="xp-label" id="xpLabel">0 / 100 XP</div>
+      </div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="xpBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Streak chips -->
+    <div class="streak-row">
+      <div class="streak-chip">🔥 <span id="streakCount">0</span> day streak</div>
+      <div class="streak-chip">✅ <span id="doneCount">0</span> done today</div>
+    </div>
+
+    <!-- Task Card -->
+    <div class="task-card">
+      <div class="task-card-header">
+        <!-- Mini robot icon -->
+        <svg width="28" height="28" viewBox="0 0 60 66" fill="none">
+          <rect x="14" y="34" width="32" height="24" rx="6" fill="#e8dfc8"/>
+          <rect x="6" y="36" width="10" height="14" rx="5" fill="#7fb87c"/>
+          <rect x="44" y="36" width="10" height="14" rx="5" fill="#7fb87c"/>
+          <rect x="24" y="30" width="12" height="6" rx="2" fill="#c8bfa8"/>
+          <rect x="12" y="14" width="36" height="22" rx="7" fill="#e8dfc8"/>
+          <rect x="17" y="18" width="26" height="13" rx="4" fill="#2a3a2a"/>
+          <circle cx="23" cy="23" r="3" fill="#00c8c8" opacity="0.8"/>
+          <circle cx="37" cy="23" r="3" fill="#00c8c8" opacity="0.8"/>
+          <rect x="9" y="15" width="5" height="8" rx="2.5" fill="#7fb87c"/>
+          <rect x="46" y="15" width="5" height="8" rx="2.5" fill="#7fb87c"/>
+          <rect x="10" y="10" width="40" height="10" rx="5" fill="#5a4a36"/>
+          <text x="22" y="19" font-size="8" fill="#f0b429">★</text>
+        </svg>
+        <div class="task-card-title">My Tasks</div>
+        <div style="margin-left:auto;font-size:20px;cursor:pointer;color:var(--text-muted)" onclick="openAddGroup()" title="Add group">＋</div>
+      </div>
+
+      <div class="task-list" id="taskList">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Add task input -->
+      <div class="add-task-row">
+        <input class="add-task-input" id="addInput" placeholder="Add a new task…" maxlength="60"
+          onkeydown="if(event.key==='Enter') addTask()"/>
+        <button class="add-task-btn" onclick="addTask()">+</button>
+      </div>
+    </div>
+
+    <!-- Mini robot bottom right -->
+    <svg class="mini-robot" viewBox="0 0 60 66" fill="none" onclick="robotTaunt()" title="Poke the robot">
+      <rect x="14" y="34" width="32" height="24" rx="6" fill="#e8dfc8"/>
+      <rect x="6" y="36" width="10" height="14" rx="5" fill="#7fb87c"/>
+      <rect x="44" y="36" width="10" height="14" rx="5" fill="#7fb87c"/>
+      <rect x="24" y="30" width="12" height="6" rx="2" fill="#c8bfa8"/>
+      <rect x="12" y="14" width="36" height="22" rx="7" fill="#e8dfc8"/>
+      <rect x="17" y="18" width="26" height="13" rx="4" fill="#2a3a2a"/>
+      <circle cx="23" cy="23" r="3" fill="#00c8c8" opacity="0.8"/>
+      <circle cx="37" cy="23" r="3" fill="#00c8c8" opacity="0.8"/>
+      <rect x="9" y="15" width="5" height="8" rx="2.5" fill="#7fb87c"/>
+      <rect x="46" y="15" width="5" height="8" rx="2.5" fill="#7fb87c"/>
+      <rect x="10" y="10" width="40" height="10" rx="5" fill="#5a4a36"/>
+      <text x="22" y="19" font-size="8" fill="#f0b429">★</text>
+    </svg>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Completion popup -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-card">
+      <div class="popup-emoji">🏆</div>
+      <div class="popup-title">Task Complete!</div>
+      <div class="popup-sub" id="popupSub">Great job staying on track.</div>
+      <div class="popup-xp" id="popupXp">+10 XP</div>
+      <button class="popup-btn" onclick="closePopup()">Keep Going →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let xp = 0, level = 1, streak = 0, doneToday = 0;
+const XP_PER_LEVEL = 100;
+const XP_PER_TASK = 10;
+
+let tasks = [
+  { id: 1, label: 'Morning workout', done: false, group: null },
+  { id: 2, label: 'Read for 20 minutes', done: true, group: null },
+  { id: 3, label: 'Drink 2L of water', done: false, group: null },
+];
+let groups = [
+  { id: 'g1', label: 'Work', open: true },
+  { id: 'g2', label: 'Side project', open: false },
+];
+let groupTasks = [
+  { id: 4, label: 'Review emails', done: false, group: 'g1' },
+  { id: 5, label: 'Team standup', done: false, group: 'g1' },
+  { id: 6, label: 'Design mockup', done: false, group: 'g2' },
+];
+let nextId = 10;
+
+const taunts = [
+  "Still slacking? 🙄",
+  "I've seen better. Just saying.",
+  "You could be doing tasks right now...",
+  "I'm watching you. 👀",
+  "Don't pet the robot. Do tasks.",
+  "This button doesn't give XP. Go work.",
+  "Fine. I'll just stand here.",
+];
+let tauntIdx = 0;
+
+// ── NAVIGATION ──
+function goToMain() {
+  document.getElementById('splash').classList.add('hidden');
+  const main = document.getElementById('main');
+  main.classList.remove('hidden');
+  setTimeout(() => main.classList.remove('slide-in'), 10);
+  renderTasks();
+  updateXpBar();
+}
+
+// ── RENDER ──
+function renderTasks() {
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+
+  // Standalone tasks
+  tasks.forEach(t => list.appendChild(makeTaskEl(t)));
+
+  // Groups
+  groups.forEach(g => {
+    const gTasks = groupTasks.filter(t => t.group === g.id);
+    const header = document.createElement('div');
+    header.className = 'task-group-header';
+    header.innerHTML = `
+      <span class="group-arrow ${g.open ? 'open' : ''}" id="arr-${g.id}">›</span>
+      <span class="group-label">${g.label}</span>
+      <span class="group-count">${gTasks.filter(t=>t.done).length}/${gTasks.length}</span>
+    `;
+    header.onclick = () => toggleGroup(g.id);
+    list.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = `group-body ${g.open ? '' : 'closed'}`;
+    body.id = `gb-${g.id}`;
+    gTasks.forEach(t => body.appendChild(makeTaskEl(t)));
+    list.appendChild(body);
+  });
+
+  document.getElementById('doneCount').textContent = doneToday;
+}
+
+function makeTaskEl(t) {
+  const el = document.createElement('div');
+  el.className = `task-item ${t.done ? 'done' : ''}`;
+  el.id = `task-${t.id}`;
+  el.innerHTML = `
+    <div class="task-check">${t.done ? '✓' : ''}</div>
+    <div class="task-label">${t.label}</div>
+    <span class="task-xp">+${XP_PER_TASK} XP</span>
+    <button class="task-delete" onclick="deleteTask(event,${t.id},'${t.group}')">✕</button>
+  `;
+  el.onclick = (e) => { if (!e.target.classList.contains('task-delete')) toggleTask(t.id, t.group); };
+  return el;
+}
+
+// ── TOGGLE TASK ──
+function toggleTask(id, group) {
+  const arr = group ? groupTasks : tasks;
+  const t = arr.find(x => x.id === id);
+  if (!t) return;
+
+  if (!t.done) {
+    t.done = true;
+    doneToday++;
+    gainXP(XP_PER_TASK);
+    showPopup(t.label);
+  } else {
+    t.done = false;
+    doneToday = Math.max(0, doneToday - 1);
+    xp = Math.max(0, xp - XP_PER_TASK);
+    updateXpBar();
+  }
+  renderTasks();
+}
+
+// ── DELETE TASK ──
+function deleteTask(e, id, group) {
+  e.stopPropagation();
+  if (group) {
+    const idx = groupTasks.findIndex(t => t.id === id);
+    if (idx !== -1) groupTasks.splice(idx, 1);
+  } else {
+    const idx = tasks.findIndex(t => t.id === id);
+    if (idx !== -1) tasks.splice(idx, 1);
+  }
+  renderTasks();
+}
+
+// ── ADD TASK ──
+function addTask() {
+  const input = document.getElementById('addInput');
+  const label = input.value.trim();
+  if (!label) return;
+  tasks.push({ id: nextId++, label, done: false, group: null });
+  input.value = '';
+  renderTasks();
+  showToast('Task added! 📝');
+}
+
+// ── ADD GROUP ──
+function openAddGroup() {
+  const name = prompt('Group name:');
+  if (!name || !name.trim()) return;
+  const id = 'g' + nextId++;
+  groups.push({ id, label: name.trim(), open: true });
+  renderTasks();
+  showToast('Group created! 📁');
+}
+
+// ── TOGGLE GROUP ──
+function toggleGroup(id) {
+  const g = groups.find(x => x.id === id);
+  if (!g) return;
+  g.open = !g.open;
+  document.getElementById(`gb-${id}`).classList.toggle('closed', !g.open);
+  const arr = document.getElementById(`arr-${id}`);
+  if (arr) arr.classList.toggle('open', g.open);
+}
+
+// ── XP & LEVEL ──
+function gainXP(amount) {
+  xp += amount;
+  while (xp >= XP_PER_LEVEL) {
+    xp -= XP_PER_LEVEL;
+    level++;
+    showToast(`🎉 Level Up! You're now Level ${level}!`);
+  }
+  updateXpBar();
+}
+
+function updateXpBar() {
+  const pct = (xp / XP_PER_LEVEL) * 100;
+  document.getElementById('xpBar').style.width = pct + '%';
+  document.getElementById('xpLabel').textContent = `${xp} / ${XP_PER_LEVEL} XP`;
+  document.getElementById('levelBadge').textContent = `LVL ${level}`;
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── COMPLETION POPUP ──
+const robotMessages = [
+  "Not bad. For a human.",
+  "I've seen worse. Barely.",
+  "Fine. You did something.",
+  "Keep it up... I guess.",
+  "Acceptable performance.",
+];
+function showPopup(label) {
+  const msg = robotMessages[Math.floor(Math.random() * robotMessages.length)];
+  document.getElementById('popupSub').textContent = msg;
+  document.getElementById('popupXp').textContent = `+${XP_PER_TASK} XP`;
+  document.getElementById('popup').classList.add('show');
+}
+function closePopup() {
+  document.getElementById('popup').classList.remove('show');
+}
+
+// ── ROBOT TAUNT ──
+function robotTaunt() {
+  showToast(taunts[tauntIdx % taunts.length]);
+  tauntIdx++;
+}
+</script>
+</body>
+</html>
